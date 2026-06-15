@@ -1,0 +1,83 @@
+# 🔵 Blue Team · 防御环境
+# ModSecurity WAF + Suricata IDS + OSSEC HIDS
+#
+# 设计说明:
+# - ModSecurity 嵌入到 Nginx 作为 WAF，拦截恶意请求
+# - Suricata 作为 IDS 监控网络流量，检测入侵行为
+# - OSSEC 做主机入侵检测（文件完整性 + 日志分析）
+# - 三者互补，覆盖 Web / 网络 / 主机三个层面
+
+services:
+  # ========================================
+  # Nginx + ModSecurity WAF
+  # 前置：需要对主 Nginx 增加 ModSecurity 模块
+  # 此处是独立的 WAF 实验环境
+  # ========================================
+  waf-lab:
+    image: owasp/modsecurity-crs:nginx
+    container_name: lab-waf
+    restart: unless-stopped
+    environment:
+      - BACKEND=http://172.30.0.20:80      # 代理到 DVWA
+      - PARANOIA=1                          # CRS 严格度 1-4
+      - ANOMALY_INBOUND=5                   # 入站异常阈值
+      - ANOMALY_OUTBOUND=4                  # 出站异常阈值
+      - TZ=Asia/Hong_Kong
+    volumes:
+      - /mnt/data/lab/waf/logs:/var/log/nginx
+      - /mnt/data/lab/waf/rules:/etc/modsecurity.d/owasp-crs/rules
+    ports:
+      - "127.0.0.1:8080:8080"               # WAF 前端端口
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.50
+    mem_limit: 512m
+
+  # ========================================
+  # Suricata IDS — 入侵检测系统
+  # 监控 lab-net 网络流量
+  # ========================================
+  suricata:
+    image: jasonish/suricata:latest
+    container_name: lab-suricata
+    restart: unless-stopped
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_NICE
+    volumes:
+      - /mnt/data/lab/suricata/logs:/var/log/suricata
+      - /mnt/data/lab/suricata/rules:/var/lib/suricata/rules
+      - /mnt/data/lab/suricata/config/suricata.yaml:/etc/suricata/suricata.yaml
+    command: >
+      suricata -c /etc/suricata/suricata.yaml
+      --af-packet=docker0
+      -v
+    mem_limit: 1g
+    cpus: "2"
+
+  # ========================================
+  # OSSEC HIDS — 主机入侵检测
+  # 监控文件完整性 + 日志分析
+  # ========================================
+  ossec-server:
+    image: atomicorp/ossec-docker:latest
+    container_name: lab-ossec-server
+    restart: unless-stopped
+    hostname: ossec-server
+    environment:
+      - OSSEC_ENABLE_SYSLOG=false
+    volumes:
+      - /mnt/data/lab/ossec/data:/var/ossec/data
+      - /mnt/data/lab/ossec/logs:/var/ossec/logs
+      - /var/log:/var/log/host:ro                # 读取主机日志
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.60
+    mem_limit: 512m
+
+networks:
+  lab-net:
+    external: true
+    name: lab-net

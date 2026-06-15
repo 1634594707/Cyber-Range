@@ -1,0 +1,115 @@
+# 🏴 Red Team · 攻击环境
+# Kali 攻击机 + Vulhub 靶场
+
+services:
+  # ========================================
+  # Kali Linux 攻击机 — Web 桌面访问
+  # 启动后访问 http://服务器IP:6080
+  # ========================================
+  kali:
+    image: lscr.io/linuxserver/kali-linux:latest
+    container_name: lab-kali
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Hong_Kong
+      - SUBFOLDER=/
+      - TITLE=Kali Linux Attack Box
+    volumes:
+      - /mnt/data/lab/kali:/config
+      - /mnt/data/lab/shared:/shared
+    ports:
+      - "127.0.0.1:3001:3001"   # noVNC Web 桌面 (Nginx 代理)
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.10
+    mem_limit: 2g
+    cpus: "2"
+    shm_size: "512m"
+
+  # ========================================
+  # Vulhub 靶场编排器
+  # 按需启动不同漏洞环境
+  # ========================================
+  vulhub-loader:
+    image: alpine:latest
+    container_name: lab-vulhub-loader
+    command: tail -f /dev/null
+    volumes:
+      - /mnt/data/lab/vulhub:/vulhub
+    networks:
+      - lab-net
+
+  # ========================================
+  # DVWA — Web 漏洞练习（经典）
+  # 访问 http://172.30.0.20:8080
+  # ========================================
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: lab-dvwa
+    restart: unless-stopped
+    environment:
+      - MYSQL_PASS=m@riab1dvwa
+      - RECAPTCHA_PRIV_KEY=disabled
+      - RECAPTCHA_PUB_KEY=disabled
+    ports:
+      - "127.0.0.1:8081:80"
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.20
+    mem_limit: 512m
+
+  # ========================================
+  # WebGoat — OWASP 官方教学靶场
+  # 访问 http://172.30.0.21:8080/WebGoat
+  # ========================================
+  webgoat:
+    image: webgoat/goatandwolf:latest
+    container_name: lab-webgoat
+    restart: unless-stopped
+    environment:
+      - WEBWOLF_HOST=webwolf
+      - WEBGOAT_GSSTS_MODE=false
+    ports:
+      - "127.0.0.1:8082:8080"
+      - "127.0.0.1:9090:9090"
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.21
+    mem_limit: 1g
+
+  # ========================================
+  # Juice Shop — OWASP 现代 Web 安全
+  # 访问 http://172.30.0.22:3000
+  # ========================================
+  juice-shop:
+    image: bkimminich/juice-shop:latest
+    container_name: lab-juiceshop
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.22
+    mem_limit: 512m
+
+  # ========================================
+  # Metasploitable-like — 综合漏洞靶机
+  # SSH: root/root, 端口 22
+  # ========================================
+  metasploit:
+    image: tleemcjr/metasploitable2:latest
+    container_name: lab-metasploit
+    restart: unless-stopped
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.30
+    mem_limit: 512m
+
+networks:
+  lab-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
