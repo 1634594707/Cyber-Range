@@ -1,0 +1,489 @@
+/* ============================================================
+   🛡️ Cyber Range Premium Theme v2.0 — "黑夜渗透"
+   为 CTFd 平台定制 | Dark Mode Only | 黑客美学
+   ============================================================ */
+
+/* ---- CSS 变量体系 ---- */
+:root {
+  /* 主色调 — 赛博暗色 */
+  --cyber-bg-primary:    #080c14;
+  --cyber-bg-secondary:  #0d1320;
+  --cyber-bg-tertiary:   #111827;
+  --cyber-bg-card:       #151d2e;
+  --cyber-bg-elevated:   #1a2540;
+
+  /* 品牌色 — 电光绿 */
+  --cyber-accent:        #00e676;
+  --cyber-accent-glow:   #00ff88;
+  --cyber-accent-dim:    #00c853;
+  --cyber-accent-bg:     rgba(0, 230, 118, 0.08);
+
+  /* 二级色 */
+  --cyber-blue:          #00b0ff;
+  --cyber-purple:        #7c4dff;
+  --cyber-orange:        #ff6d00;
+  --cyber-red:           #ff1744;
+  --cyber-yellow:        #ffd600;
+
+  /* 文字色 */
+  --cyber-text-primary:  #e2e8f0;
+  --cyber-text-secondary:#94a3b8;
+  --cyber-text-muted:    #64748b;
+  --cyber-text-inverse:  #080c14;
+
+  /* 边框 */
+  --cyber-border-subtle: rgba(255,255,255,0.06);
+  --cyber-border-default:rgba(255,255,255,0.10);
+  --cyber-border-strong: rgba(255,255,255,0.15);
+  --cyber-border-accent: rgba(0, 230, 118, 0.3);
+
+  /* 阴影 */
+  --cyber-shadow-sm:     0 1px 2px rgba(0,0,0,0.3);
+  --cyber-shadow-md:     0 4px 12px rgba(0,0,0,0.4);
+  --cyber-shadow-lg:     0 8px 32px rgba(0,0,0,0.5);
+  --cyber-shadow-glow:   0 0 20px rgba(0,230,118,0.15);
+  --cyber-shadow-blue:   0 0 20px rgba(0,176,255,0.15);
+
+  /* 圆角 */
+  --cyber-radius-sm:     6px;
+  --cyber-radius-md:     10px;
+  --cyber-radius-lg:     16px;
+  --cyber-radius-xl:     24px;
+
+  /* 动画 */
+  --cyber-transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --cyber-transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --cyber-transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* 排版 */
+  --cyber-font-mono:  'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --cyber-font-sans:  'Inter', 'SF Pro Display', -apple-system, sans-serif;
+}
+
+/* ---- 全局重置 ---- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--cyber-font-sans);
+  background: var(--cyber-bg-primary);
+  color: var(--cyber-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- 扫描线背景效果 ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 230, 118, 0.008) 2px,
+    rgba(0, 230, 118, 0.008) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ---- Navbar — 玻璃拟态 ---- */
+.navbar {
+  background: rgba(13, 19, 32, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--cyber-border-default);
+  box-shadow: var(--cyber-shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: background var(--cyber-transition-smooth);
+}
+
+.navbar .navbar-brand {
+  font-family: var(--cyber-font-mono);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+  color: var(--cyber-accent) !important;
+  text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+}
+
+.navbar .nav-link {
+  color: var(--cyber-text-secondary) !important;
+  position: relative;
+  transition: color var(--cyber-transition-fast);
+}
+
+.navbar .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--cyber-accent);
+  transform: translateX(-50%);
+  transition: width var(--cyber-transition-smooth);
+}
+
+.navbar .nav-link:hover {
+  color: var(--cyber-accent) !important;
+}
+
+.navbar .nav-link:hover::after {
+  width: 70%;
+}
+
+/* ---- 卡片 — 深邃悬浮 ---- */
+.card, .challenge-card, .jumbotron {
+  background: var(--cyber-bg-card) !important;
+  border: 1px solid var(--cyber-border-default) !important;
+  border-radius: var(--cyber-radius-lg) !important;
+  box-shadow: var(--cyber-shadow-sm);
+  transition: all var(--cyber-transition-smooth);
+  overflow: hidden;
+}
+
+.card:hover, .challenge-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--cyber-border-accent) !important;
+  box-shadow: var(--cyber-shadow-lg), var(--cyber-shadow-glow);
+}
+
+.challenge-card {
+  position: relative;
+}
+
+.challenge-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--cyber-accent), var(--cyber-blue), var(--cyber-purple));
+  opacity: 0;
+  transition: opacity var(--cyber-transition-smooth);
+}
+
+.challenge-card:hover::before {
+  opacity: 1;
+}
+
+/* ---- 按钮系统 ---- */
+.btn, button[type="submit"] {
+  font-family: var(--cyber-font-sans);
+  font-weight: 600;
+  border-radius: var(--cyber-radius-sm);
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all var(--cyber-transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary, .btn-outline-primary {
+  background: linear-gradient(135deg, var(--cyber-accent), var(--cyber-accent-dim)) !important;
+  border: none !important;
+  color: var(--cyber-text-inverse) !important;
+  box-shadow: 0 2px 8px rgba(0, 230, 118, 0.25);
+}
+
+.btn-primary:hover, .btn-outline-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 230, 118, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-outline-secondary {
+  background: transparent !important;
+  border: 1px solid var(--cyber-border-strong) !important;
+  color: var(--cyber-text-secondary) !important;
+}
+
+.btn-outline-secondary:hover {
+  border-color: var(--cyber-accent) !important;
+  color: var(--cyber-accent) !important;
+  background: var(--cyber-accent-bg) !important;
+}
+
+/* ---- 输入框 — 赛博终端风 ---- */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+textarea,
+select,
+.form-control {
+  background: var(--cyber-bg-secondary) !important;
+  border: 1px solid var(--cyber-border-default) !important;
+  border-radius: var(--cyber-radius-sm) !important;
+  color: var(--cyber-text-primary) !important;
+  font-family: var(--cyber-font-mono) !important;
+  font-size: 0.875rem;
+  padding: 10px 14px;
+  transition: all var(--cyber-transition-fast);
+}
+
+input:focus,
+textarea:focus,
+.form-control:focus {
+  outline: none !important;
+  border-color: var(--cyber-accent) !important;
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.15) !important;
+  background: var(--cyber-bg-tertiary) !important;
+}
+
+input::placeholder {
+  color: var(--cyber-text-muted);
+  font-family: var(--cyber-font-mono);
+}
+
+/* ---- 计分板 / 表格 ---- */
+table, .table {
+  background: var(--cyber-bg-card);
+  border-radius: var(--cyber-radius-lg);
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+thead th {
+  background: var(--cyber-bg-elevated);
+  color: var(--cyber-accent);
+  font-family: var(--cyber-font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--cyber-border-accent);
+}
+
+tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cyber-border-subtle);
+  color: var(--cyber-text-secondary);
+  font-size: 0.875rem;
+}
+
+tbody tr {
+  transition: background var(--cyber-transition-fast);
+}
+
+tbody tr:hover {
+  background: var(--cyber-bg-elevated);
+}
+
+/* 排行榜前3名高亮 */
+tbody tr:nth-child(1) td:first-child::before {
+  content: '🥇 ';
+}
+
+tbody tr:nth-child(2) td:first-child::before {
+  content: '🥈 ';
+}
+
+tbody tr:nth-child(3) td:first-child::before {
+  content: '🥉 ';
+}
+
+/* ---- Alert — 黑客终端风格 ---- */
+.alert {
+  border-radius: var(--cyber-radius-md);
+  border-left: 4px solid;
+  padding: 14px 18px;
+  font-family: var(--cyber-font-mono);
+  font-size: 0.875rem;
+}
+
+.alert-success {
+  background: rgba(0, 230, 118, 0.08);
+  border-color: var(--cyber-accent) !important;
+  color: var(--cyber-accent);
+}
+
+.alert-danger {
+  background: rgba(255, 23, 68, 0.08);
+  border-color: var(--cyber-red) !important;
+  color: var(--cyber-red);
+}
+
+.alert-info {
+  background: rgba(0, 176, 255, 0.08);
+  border-color: var(--cyber-blue) !important;
+  color: var(--cyber-blue);
+}
+
+/* ---- 挑战分类标签 ---- */
+.challenge-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-family: var(--cyber-font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.tag-web      { background: rgba(0, 176, 255, 0.12); color: var(--cyber-blue); }
+.tag-rev      { background: rgba(124, 77, 255, 0.12); color: var(--cyber-purple); }
+.tag-crypto   { background: rgba(255, 214, 0, 0.12); color: var(--cyber-yellow); }
+.tag-pwn      { background: rgba(255, 23, 68, 0.12); color: var(--cyber-red); }
+.tag-forensics{ background: rgba(255, 109, 0, 0.12); color: var(--cyber-orange); }
+.tag-misc     { background: rgba(0, 230, 118, 0.12); color: var(--cyber-accent); }
+
+/* ---- 分数显示 ---- */
+.score-value {
+  font-family: var(--cyber-font-mono);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--cyber-accent);
+  text-shadow: 0 0 8px rgba(0, 230, 118, 0.3);
+}
+
+/* ---- 进度条 ---- */
+.progress {
+  background: var(--cyber-bg-tertiary);
+  border-radius: 20px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--cyber-accent), var(--cyber-blue));
+  border-radius: 20px;
+  transition: width var(--cyber-transition-smooth);
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+}
+
+/* ---- 代码块 / Flag 提交框 ---- */
+code, pre, .flag-input {
+  font-family: var(--cyber-font-mono);
+  background: var(--cyber-bg-tertiary);
+  border: 1px solid var(--cyber-border-default);
+  border-radius: var(--cyber-radius-sm);
+  color: var(--cyber-accent);
+}
+
+pre {
+  padding: 16px;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+pre::before {
+  content: 'root@cyber-range:~$ ';
+  color: var(--cyber-accent);
+  opacity: 0.5;
+  user-select: none;
+}
+
+/* ---- 模态框 ---- */
+.modal-content {
+  background: var(--cyber-bg-card) !important;
+  border: 1px solid var(--cyber-border-default) !important;
+  border-radius: var(--cyber-radius-lg) !important;
+  box-shadow: var(--cyber-shadow-lg);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--cyber-border-subtle);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--cyber-border-subtle);
+}
+
+/* ---- Footer ---- */
+footer, .footer {
+  background: var(--cyber-bg-secondary);
+  border-top: 1px solid var(--cyber-border-default);
+  padding: 32px 0;
+  text-align: center;
+  color: var(--cyber-text-muted);
+  font-size: 0.8rem;
+}
+
+/* ---- 动画关键帧 ---- */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(0, 230, 118, 0.2); }
+  50%      { box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- 响应式 ---- */
+@media (max-width: 768px) {
+  .card, .challenge-card {
+    margin: 8px 0;
+  }
+
+  table { font-size: 0.75rem; }
+
+  .navbar .nav-link::after {
+    display: none;
+  }
+}
+
+/* ---- 杂项增强 ---- */
+a {
+  color: var(--cyber-accent);
+  text-decoration: none;
+  transition: color var(--cyber-transition-fast);
+}
+
+a:hover {
+  color: var(--cyber-accent-glow);
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 230, 118, 0.3);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cyber-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--cyber-border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyber-accent-dim);
+}
+
+::selection {
+  background: rgba(0, 230, 118, 0.3);
+  color: var(--cyber-text-primary);
+}

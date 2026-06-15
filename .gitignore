@@ -1,0 +1,38 @@
+# ---- 凭据 & 敏感信息 ----
+.env
+*.env.local
+*-credentials
+.ctfd-credentials
+
+# ---- IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- 依赖 ----
+node_modules/
+vendor/
+__pycache__/
+*.pyc
+*.pyo
+
+# ---- Docker ----
+docker-compose.override.yml
+
+# ---- 备份 & 数据 ----
+*.sql.gz
+*.tar.gz
+backups/
+
+# ---- 日志 ----
+*.log
+logs/
+
+# ---- WorkBuddy ----
+.workbuddy/memory/

@@ -1,0 +1,46 @@
+# ---- Prometheus 监控配置 — Cyber Range ----
+# 位置: /mnt/data/monitoring/prometheus/prometheus.yml
+
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'cyber-range'
+
+# 告警规则
+rule_files:
+  - 'alert-rules.yml'
+
+scrape_configs:
+  # ---- Prometheus 自身 ----
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ---- Node Exporter（主机指标） ----
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'cyber-range-hk'
+          region: 'hong-kong'
+
+  # ---- cAdvisor（Docker 容器指标） ----
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # ---- PostgreSQL Exporter ----
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  # ---- Redis Exporter ----
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # ---- Nginx Exporter ----
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']

@@ -1,0 +1,81 @@
+version: "3.9"
+# ============================================================
+# 🛡️ Cyber Range — 本地开发 Docker Compose
+# 用于本地开发和 CI 测试，生产环境使用 deploy/server-setup.sh
+# ============================================================
+
+services:
+  # ---- PostgreSQL 16 ----
+  postgres:
+    image: postgres:16-alpine
+    container_name: cr-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ctfd
+      POSTGRES_PASSWORD: ctfd_dev_password
+      POSTGRES_DB: ctfd
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ctfd"]
+      interval: 5s; timeout: 3s; retries: 5
+    networks:
+      - ctfd-net
+
+  # ---- Redis 7 ----
+  redis:
+    image: redis:7-alpine
+    container_name: cr-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 128mb
+    volumes:
+      - redisdata:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s; timeout: 3s; retries: 5
+    networks:
+      - ctfd-net
+
+  # ---- CTFd 3.7 ----
+  ctfd:
+    image: ctfd/ctfd:3.7.5
+    container_name: cr-ctfd-dev
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://ctfd:ctfd_dev_password@postgres:5432/ctfd
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: dev-secret-change-in-production
+      UPLOAD_FOLDER: /var/uploads
+      LOG_FOLDER: /var/log/CTFd
+      REVERSE_PROXY: "1,2,4,6"
+      WORKERS: "2"
+    volumes:
+      - ctfd_uploads:/var/uploads
+      - ctfd_logs:/var/log/CTFd
+      - ../challenges:/var/challenges:ro
+    ports:
+      - "8000:8000"
+    networks:
+      - ctfd-net
+      - challenges-net
+
+networks:
+  ctfd-net:
+    driver: bridge
+    ipam: { config: [{ subnet: 172.20.0.0/24 }] }
+  challenges-net:
+    driver: bridge
+    ipam: { config: [{ subnet: 172.21.0.0/24 }] }
+
+volumes:
+  pgdata:
+  redisdata:
+  ctfd_uploads:
+  ctfd_logs:

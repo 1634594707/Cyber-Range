@@ -1,0 +1,85 @@
+# ---- 监控告警规则 — Cyber Range ----
+# 位置: /mnt/data/monitoring/prometheus/alert-rules.yml
+
+groups:
+  - name: cyber-range-alerts
+    interval: 30s
+    rules:
+
+      # ---- 服务存活 ----
+      - alert: CTFdDown
+        expr: up{job="node"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🛑 CTFd 平台不可用"
+          description: "服务器 {{ $labels.instance }} 已下线超过 2 分钟"
+
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🗄️ PostgreSQL 数据库不可用"
+
+      # ---- 资源告警 ----
+      - alert: HighCPU
+        expr: avg(rate(node_cpu_seconds_total{mode!="idle"}[5m])) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "⚡ CPU 使用率超过 80%"
+          description: "当前值: {{ $value | humanize }}%"
+
+      - alert: HighMemory
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "🧠 内存使用率超过 85%"
+
+      - alert: DiskSpaceLow
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/mnt/data"} / node_filesystem_size_bytes{mountpoint="/mnt/data"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "💾 数据盘使用率超过 85%"
+
+      - alert: HighDockerContainers
+        expr: count(container_last_seen{name=~"cr-.*"}) > 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "📦 Docker 容器数量超过 20，注意资源"
+
+      # ---- 网络告警 ----
+      - alert: HighNetworkTraffic
+        expr: rate(node_network_transmit_bytes_total[5m]) * 8 > 8000000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "🌐 出站带宽超过 8 Mbps"
+
+      # ---- 安全告警 ----
+      - alert: TooManyLogins
+        expr: rate(nginx_http_requests_total{location="/login"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "🔐 登录接口异常高频访问"
+
+      - alert: Many404s
+        expr: rate(nginx_http_requests_total{status="404"}[5m]) > 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "🔍 大量 404 — 可能存在扫描行为"

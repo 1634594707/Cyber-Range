@@ -1,0 +1,57 @@
+# ---- Fail2Ban 配置 — Cyber Range ----
+# 位置: /etc/fail2ban/jail.local
+
+[DEFAULT]
+# 基础设置
+bantime  = 3600                     # 封禁 1 小时
+findtime = 600                      # 10 分钟内
+maxretry = 5                        # 最多 5 次失败
+banaction = nftables-multiport      # 使用 nftables 封禁
+banaction_allports = nftables-allports
+
+# 忽略内网
+ignoreip = 127.0.0.1/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+
+# ---- SSH 防护 ----
+[sshd]
+enabled   = true
+port      = 22022                  # 自定义 SSH 端口
+maxretry  = 3                      # 3 次失败即封禁
+bantime   = 7200                   # 封禁 2 小时
+logpath   = /var/log/auth.log
+findtime  = 300
+
+# ---- Nginx 登录爆破防护 ----
+[nginx-http-auth]
+enabled   = true
+port      = http,https
+maxretry  = 5
+bantime   = 3600
+logpath   = /var/log/nginx/ctfd_error.log
+
+# ---- Nginx 扫描器防护 ----
+[nginx-botsearch]
+enabled   = true
+port      = http,https
+maxretry  = 3                       # 短时间内多次 404 即封禁
+bantime   = 3600
+logpath   = /var/log/nginx/ctfd_access.log
+findtime  = 60
+
+# ---- Nginx 限流违规防护 ----
+[nginx-limit-req]
+enabled   = true
+port      = http,https
+maxretry  = 10
+bantime   = 600
+logpath   = /var/log/nginx/ctfd_error.log
+
+# ---- 自定义: CTFd 登录失败防护 ----
+[ctfd-login]
+enabled   = true
+port      = http,https
+maxretry  = 10                      # 10 次登录失败
+bantime   = 1800                    # 封禁 30 分钟
+findtime  = 300
+logpath   = /mnt/data/ctfd/logs/ctfd.log
+failregex = ^.*Login failed for user.*$
